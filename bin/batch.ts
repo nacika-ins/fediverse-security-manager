@@ -98,11 +98,11 @@ const execMastodon = async (provider: TargetProvider, spamTexts: string[], lastC
         if (!found) continue;
 
         // report target
-        // console.debug('[spam found] notification =', notification.status?.content);
-        // console.debug('notification.account?.id =', notification.account?.id);
-        // console.debug('notification.account?.displayName =', notification.account?.displayName);
-        // console.debug('notification.account?.username =', notification.account?.username);
-        // console.debug('notification.status?.id =', notification.status?.id);
+        console.debug('[spam found] notification =', notification.status?.content);
+        console.debug('notification.account?.id =', notification.account?.id);
+        console.debug('notification.account?.displayName =', notification.account?.displayName);
+        console.debug('notification.account?.username =', notification.account?.username);
+        console.debug('notification.status?.id =', notification.status?.id);
 
         // Report spam
         const report = await retry(async () => masto.v1.reports.create({
@@ -115,11 +115,11 @@ const execMastodon = async (provider: TargetProvider, spamTexts: string[], lastC
         console.debug('report =', report);
 
         // Remove Status
-        for (const statusId of report.statusIds ?? []) {
-          console.debug('[Remove Status] statusId =', statusId);
-          const result = await retry(async () => adminMasto.v1.statuses.$select(statusId).remove());
-          console.debug('result  =', result);
-        }
+        // for (const statusId of report.statusIds ?? []) {
+        //   console.debug('[Remove Status] statusId =', statusId);
+        //   const result = await retry(async () => adminMasto.v1.statuses.$select(statusId).remove(), { retries: 0 });
+        //   console.debug('result  =', result);
+        // }
 
         // Suspend User
         console.debug('[Suspend User] report.targetAccount.id =', report.targetAccount.id);
