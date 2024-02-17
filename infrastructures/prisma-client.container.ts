@@ -2,7 +2,8 @@
 
 import { PrismaClient } from '@prisma/client';
 
-const prismaClient: PrismaClient | null = null;
+// eslint-disable-next-line no-var
+var prismaClient: PrismaClient | null = null;
 
 /**
  * Prisma client container
@@ -10,8 +11,12 @@ const prismaClient: PrismaClient | null = null;
  */
 export const prismaClientContainer = (): { prismaClient: PrismaClient } => {
   if (!prismaClient) {
-    return { prismaClient: new PrismaClient() };
+    return { prismaClient: new PrismaClient({
+      log: ['query', 'info', 'warn'],
+      errorFormat: 'pretty',
+    }) };
   }
+  prismaClient.$connect();
 
   return { prismaClient };
 };

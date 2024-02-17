@@ -9,7 +9,8 @@
     "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/watch.ts",
     "start": "next start",
     "lint": "next lint",
-    "db:migrate": "read name && npx prisma migrate dev --name $name",
+    "db:migrate:dev": "read name && npx prisma migrate dev --name $name",
+    "db:migrate:deploy": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio"
   },
   "dependencies": {
@@ -21,7 +22,9 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-toast": "^1.1.5",
+    "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "lucide-react": "^0.331.0",

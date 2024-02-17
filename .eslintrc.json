@@ -59,18 +59,19 @@
     "camelcase": 0,
     "react/display-name": 0,
     "no-shadow": "off",
-    "indent": 0,
+    "indent": ["error", 2, { "ignoredNodes": ["JSXElement"] }],
     "implicit-arrow-linebreak": 0,
     "operator-linebreak": 0,
     "no-confusing-arrow": 0,
     "no-spaced-func": 0,
     "func-call-spacing": 0,
     "function-paren-newline": 0,
-    "react/jsx-indent": 0,
+    "react/jsx-indent": [2, 2],
     "react/jsx-wrap-multilines": 0,
     "react/jsx-one-expression-per-line": 0,
     "padded-blocks": 0,
-    "import/no-extraneous-dependencies": 0
+    "import/no-extraneous-dependencies": 0,
+    "no-unused-vars": 1
   },
   "settings": {
     "import/resolver": {

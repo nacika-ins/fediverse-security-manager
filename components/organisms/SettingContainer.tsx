@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from 'react';
+import React, { FC, PropsWithChildren, useCallback, useLayoutEffect, useState } from 'react';
 import { SettingsNav } from '@/components/molecules/SettingsNav';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -17,6 +17,23 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+
+import { Switch } from '@/components/ui/switch';
+
+import Link from 'next/link';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { Cross1Icon, RocketIcon } from '@radix-ui/react-icons';
+
 import {
   Select,
   SelectContent,
@@ -24,67 +41,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Link from 'next/link';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { formSchema } from '@/app/automatic-spam-reporting/formSchema';
+import { get, update } from '@/app/automatic-spam-reporting/actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const profileFormSchema = z.object({
-  username: z
-    .string()
-    .min(2, {
-      message: 'Username must be at least 2 characters.',
-    })
-    .max(30, {
-      message: 'Username must not be longer than 30 characters.',
-    }),
-  email: z
-    .string({
-      required_error: 'Please select an email to display.',
-    })
-    .email(),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.string().url({ message: 'Please enter a valid URL.' }),
-      }),
-    )
-    .optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 // This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: 'I own a computer.',
-  spamTexts: [
-    { value: 'https://shadcn.com' },
-    { value: 'http://twitter.com/shadcn' },
-  ],
+const defaultValues: Partial<FormValues> = {
+  serviceFlag: {
+    automaticSpamReporting: false,
+  },
+  targetProviders: [],
 };
 
-export const SettingContainer: FC<PropsWithChildren> = () => {
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
+export const SettingContainer: FC<{ update: typeof update; get: typeof get } & PropsWithChildren> = ({ update, get }) => {
+
+  const [loading, setLoading] = useState(true);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues,
     mode: 'onChange',
   });
 
-  const { fields, append } = useFieldArray({
-    name: 'urls',
-    control: form.control,
-  });
-
-  function onSubmit(data: ProfileFormValues) {
-    toast({
-      title: 'You submitted the following values:',
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+  const onSubmit = useCallback(async (data: FormValues) => {
+    await update(data).catch((error) => {
+      toast({
+        title: 'Failed to update',
+        duration: 2000,
+        variant: 'destructive',
+      });
+    }).then(() => {
+      toast({
+        title: 'Updated',
+        duration: 2000,
+        variant: 'default',
+      });
     });
-  }
+  }, [update]);
+
+  useLayoutEffect(() => {
+    setLoading(true);
+    get().then((data) => {
+      form.reset(data);
+    }).finally(() => {
+      setLoading(false);
+    });
+
+  }, [form, get]);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'targetProviders',
+  });
 
   return (
     <div className="hidden space-y-6 p-10 pb-16 md:block">
@@ -100,120 +110,294 @@ export const SettingContainer: FC<PropsWithChildren> = () => {
           <SettingsNav />
         </aside>
         <div className="flex-1 lg:max-w-2xl">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ブロックするテキストリスト</FormLabel>
-                    <FormControl>
-                      <Input placeholder="shadcn" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      This is your public display name. It can be your real name
-                      or a pseudonym. You can only change this once every 30
-                      days.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a verified email to display" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="m@example.com">
-                          m@example.com
-                        </SelectItem>
-                        <SelectItem value="m@google.com">
-                          m@google.com
-                        </SelectItem>
-                        <SelectItem value="m@support.com">
-                          m@support.com
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      You can manage verified email addresses in your{' '}
-                      <Link href="/examples/forms">email settings</Link>.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="bio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bio</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Tell us a little bit about yourself"
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      You can <span>@mention</span> other users and
-                      organizations to link to them.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div>
-                {fields.map((field, index) => (
-                  <FormField
-                    control={form.control}
-                    key={field.id}
-                    name={`urls.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                          URLs
-                        </FormLabel>
-                        <FormDescription
-                          className={cn(index !== 0 && 'sr-only')}
-                        >
-                          Add links to your website, blog, or social media
-                          profiles.
-                        </FormDescription>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-2"
-                  onClick={() => append({ value: '' })}
-                >
-                  Add URL
-                </Button>
+
+          {loading ? (
+            <div className="flex flex-col space-y-3">
+              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
               </div>
-              <Button type="submit">Update profile</Button>
-            </form>
-          </Form>
+            </div>
+          ) : (
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+                <FormField
+                  control={form.control}
+                  name="serviceFlag.automaticSpamReporting"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Enable automatic spam reporting</FormLabel>
+                      <FormControl>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Switch onCheckedChange={field.onChange} checked={field.value} /> Enable
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        If this feature is enabled, the system will periodically patrol
+                        the notification timeline and automatically report any spam and automatically resolve the
+                        spam.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <h2 className="font-bold">Target providers</h2>
+                <div className="flex flex-col gap-8">
+                  {fields.map((field, index) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <Card key={`targetProviders.${index}`} className={cn('w-full', 'relative')}>
+                      <CardHeader>
+                        <CardTitle># {index + 1}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid gap-4">
+                        <div>
+                          <div className=" flex items-center space-x-4 rounded-md border p-4 mb-4">
+                            <RocketIcon />
+                            <div className="flex-1 space-y-1">
+                              <p className="text-sm font-medium leading-none">
+                                Enable
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Monitor the timeline.
+                              </p>
+                            </div>
+                            <FormField
+                              control={form.control}
+                              name={`targetProviders.${index}.enabled`}
+                              render={({ field }) => (
+                                <Switch onCheckedChange={field.onChange} checked={field.value} />
+                              )}
+                            />
+                          </div>
+                          <div>
+                            <FormField
+                              control={form.control}
+                              name={`targetProviders.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Service name
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Please enter the name of the service
+                                  </FormDescription>
+                                  <FormControl>
+                                    <div className="relative">
+                                      <Input {...field} />
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name={`targetProviders.${index}.providerType`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Provider type
+                                </FormLabel>
+                                <FormDescription>
+                                  Please select your provider type
+                                </FormDescription>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Select {...field}>
+                                      <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Provider" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="mastodon">Mastodon</SelectItem>
+                                        <SelectItem value="misskey">Misskey</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name={`targetProviders.${index}.apiEndpoint`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  API endpoint
+                                </FormLabel>
+                                <FormDescription>
+                                  Please enter an API endpoint
+                                </FormDescription>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input {...field} />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name={`targetProviders.${index}.apiToken`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  API token
+                                </FormLabel>
+                                <FormDescription>
+                                  Please enter an API token
+                                </FormDescription>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input {...field} />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                      </CardContent>
+                      <div className="absolute right-1 top-1">
+                        <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+                          <Cross1Icon className="w-4 h-4 text-gray-400" />
+                        </Button>
+                      </div>
+                    </Card>
+
+                  ))}
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => append({
+                        apiEndpoint: '',
+                        apiToken: '',
+                        enabled: true,
+                        name: '',
+                        providerType: 'mastodon',
+                      })}
+                    >
+                      Add provider
+                    </Button>
+                  </div>
+
+                </div>
+
+                {/* <FormField */}
+                {/*  control={form.control} */}
+                {/*  name="email" */}
+                {/*  render={({ field }) => ( */}
+                {/*    <FormItem> */}
+                {/*      <FormLabel>Email</FormLabel> */}
+                {/*      <Select */}
+                {/*        onValueChange={field.onChange} */}
+                {/*        defaultValue={field.value} */}
+                {/*      > */}
+                {/*        <FormControl> */}
+                {/*          <SelectTrigger> */}
+                {/*            <SelectValue placeholder="Select a verified email to display" /> */}
+                {/*          </SelectTrigger> */}
+                {/*        </FormControl> */}
+                {/*        <SelectContent> */}
+                {/*          <SelectItem value="m@example.com"> */}
+                {/*            m@example.com */}
+                {/*          </SelectItem> */}
+                {/*          <SelectItem value="m@google.com"> */}
+                {/*            m@google.com */}
+                {/*          </SelectItem> */}
+                {/*          <SelectItem value="m@support.com"> */}
+                {/*            m@support.com */}
+                {/*          </SelectItem> */}
+                {/*        </SelectContent> */}
+                {/*      </Select> */}
+                {/*      <FormDescription> */}
+                {/*        You can manage verified email addresses in your{' '} */}
+                {/*        <Link href="/examples/forms">email settings</Link>. */}
+                {/*      </FormDescription> */}
+                {/*      <FormMessage /> */}
+                {/*    </FormItem> */}
+                {/*  )} */}
+                {/* /> */}
+                {/* <FormField */}
+                {/*  control={form.control} */}
+                {/*  name="bio" */}
+                {/*  render={({ field }) => ( */}
+                {/*    <FormItem> */}
+                {/*      <FormLabel>Bio</FormLabel> */}
+                {/*      <FormControl> */}
+                {/*        <Textarea */}
+                {/*          placeholder="Tell us a little bit about yourself" */}
+                {/*          className="resize-none" */}
+                {/*          {...field} */}
+                {/*        /> */}
+                {/*      </FormControl> */}
+                {/*      <FormDescription> */}
+                {/*        You can <span>@mention</span> other users and */}
+                {/*        organizations to link to them. */}
+                {/*      </FormDescription> */}
+                {/*      <FormMessage /> */}
+                {/*    </FormItem> */}
+                {/*  )} */}
+                {/* /> */}
+                {/* <div> */}
+                {/*  {fields.map((field, index) => ( */}
+                {/*    <FormField */}
+                {/*      control={form.control} */}
+                {/*      key={field.id} */}
+                {/*      name={`urls.${index}.value`} */}
+                {/*      render={({ field }) => ( */}
+                {/*        <FormItem> */}
+                {/*          <FormLabel className={cn(index !== 0 && 'sr-only')}> */}
+                {/*            URLs */}
+                {/*          </FormLabel> */}
+                {/*          <FormDescription */}
+                {/*            className={cn(index !== 0 && 'sr-only')} */}
+                {/*          > */}
+                {/*            Add links to your website, blog, or social media */}
+                {/*            profiles. */}
+                {/*          </FormDescription> */}
+                {/*          <FormControl> */}
+                {/*            <Input {...field} /> */}
+                {/*          </FormControl> */}
+                {/*          <FormMessage /> */}
+                {/*        </FormItem> */}
+                {/*      )} */}
+                {/*    /> */}
+                {/*  ))} */}
+                {/*  <Button */}
+                {/*    type="button" */}
+                {/*    variant="outline" */}
+                {/*    size="sm" */}
+                {/*    className="mt-2" */}
+                {/*    onClick={() => append({ value: '' })} */}
+                {/*  > */}
+                {/*    Add URL */}
+                {/*  </Button> */}
+                {/* </div> */}
+                <Button type="submit">Update</Button>
+              </form>
+            </Form>
+          )}
         </div>
       </div>
     </div>
