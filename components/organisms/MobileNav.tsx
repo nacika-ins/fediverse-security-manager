@@ -4,10 +4,10 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+} from '@/components/ui/sheet';
 
-import { Dispatch, FC, useCallback } from "react";
+import React, { Dispatch, FC, useCallback } from 'react';
+import { SettingsNav } from '@/components/molecules/SettingsNav';
 
 export const MobileNav: FC<{ open: boolean; setOpen: Dispatch<boolean> }> = ({
   open,
@@ -26,8 +26,9 @@ export const MobileNav: FC<{ open: boolean; setOpen: Dispatch<boolean> }> = ({
         <SheetHeader>
           <SheetTitle>Fediverse Security Manager</SheetTitle>
           <SheetDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            <div>
+              <SettingsNav />
+            </div>
           </SheetDescription>
         </SheetHeader>
       </SheetContent>

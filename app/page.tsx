@@ -1,6 +1,7 @@
-"use client";
-import React from "react";
-import { SettingContainer } from "@/components/organisms/SettingContainer";
+'use client';
+
+import React from 'react';
+import { SettingContainer } from '@/components/organisms/SettingContainer';
 
 export default function Home() {
   return (
