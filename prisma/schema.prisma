@@ -36,14 +36,15 @@ model ServiceFlag {
 }
 
 model TargetProvider {
-  id           Int      @id @default(autoincrement())
-  name         String
-  enabled      Boolean  @default(false)
-  providerType String
-  apiEndpoint  String
-  apiToken     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  name          String
+  enabled       Boolean  @default(false)
+  providerType  String
+  apiEndpoint   String
+  apiToken      String
+  adminApiToken String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model SpamBlocked {

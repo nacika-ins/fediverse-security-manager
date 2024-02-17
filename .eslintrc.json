@@ -45,7 +45,7 @@
     "no-restricted-syntax": 0,
     "no-console": [
       "error",
-      { "allow": ["warn", "error", "trace", "info", "count"] }
+      { "allow": ["warn", "error", "trace", "info", "count", "debug"] }
     ],
     "react/function-component-definition": 0,
     "react/jsx-props-no-spreading": 0,

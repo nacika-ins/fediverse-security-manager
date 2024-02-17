@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/watch.ts",
+    "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/batch.ts",
     "start": "next start",
     "lint": "next lint",
     "db:migrate:dev": "read name && npx prisma migrate dev --name $name",
@@ -27,7 +27,10 @@
     "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "crypto": "^1.0.1",
+    "dayjs": "^1.11.10",
     "lucide-react": "^0.331.0",
+    "masto": "^6.5.2",
     "next": "14.1.0",
     "react": "^18",
     "react-aria-components": "^1.1.1",
@@ -35,6 +38,8 @@
     "react-hook-form": "^7.50.1",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
+    "ts-retry-promise": "^0.8.0",
+    "tsconfig-paths": "^4.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

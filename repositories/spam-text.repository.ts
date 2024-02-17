@@ -8,7 +8,7 @@ export const spamTextRepository = {
   async getSpamTexts() {
     const { prismaClient } = prismaClientContainer();
     const spamTexts = await prismaClient.spamText.findMany();
-    return spamTexts.map((value) => value.text);
+    return spamTexts.map((value) => value.text).filter((value) => value);
   },
 
   /**

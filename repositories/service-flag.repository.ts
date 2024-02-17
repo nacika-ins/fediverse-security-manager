@@ -45,4 +45,26 @@ export const serviceFlagRepository = {
       }
     });
   },
+
+  /**
+   * Update LastChecked
+   */
+  async updatedLastCheckedByName(name: string) {
+    const { prismaClient } = prismaClientContainer();
+
+    const serviceFlag = await prismaClient.serviceFlag.findFirstOrThrow({
+      where: {
+        name,
+      },
+    });
+
+    await prismaClient.serviceFlag.update({
+      where: {
+        id: serviceFlag.id,
+      },
+      data: {
+        lastChecked: new Date(),
+      },
+    });
+  },
 };

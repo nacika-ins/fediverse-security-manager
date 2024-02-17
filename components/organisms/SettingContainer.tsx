@@ -258,10 +258,33 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
-                                  API token
+                                  Reporter API token
                                 </FormLabel>
                                 <FormDescription>
-                                  Please enter an API token
+                                  Please enter an Reporter API token
+                                </FormDescription>
+                                <FormControl>
+                                  <div className="relative">
+                                    <Input {...field} />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name={`targetProviders.${index}.adminApiToken`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Admin API token
+                                </FormLabel>
+                                <FormDescription>
+                                  Please enter an Admin API token
                                 </FormDescription>
                                 <FormControl>
                                   <div className="relative">
@@ -295,6 +318,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                         enabled: true,
                         name: '',
                         providerType: 'mastodon',
+                        adminApiToken: '',
                       })}
                     >
                       Add provider
