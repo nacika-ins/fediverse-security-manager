@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/watch.ts",
     "start": "next start",
     "lint": "next lint",
     "db:migrate": "read name && npx prisma migrate dev --name $name",
