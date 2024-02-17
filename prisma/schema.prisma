@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SpamText {
+  id        Int      @id @default(autoincrement())
+  text      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SpamUser {
+  id        Int      @id @default(autoincrement())
+  username  String?
+  domain    String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ServiceFlag {
+  id          Int       @id @default(autoincrement())
+  name        String
+  enabled     Boolean   @default(false)
+  lastChecked DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TargetProvider {
+  id            Int      @id @default(autoincrement())
+  name          String
+  enabled       Boolean  @default(false)
+  providerType  String
+  apiEndpoint   String
+  apiToken      String
+  adminApiToken String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SpamBlocked {
+  id        Int      @id @default(autoincrement())
+  name      String
+  domain    String
+  email     String?
+  ip        String?
+  mx        String?
+  body      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

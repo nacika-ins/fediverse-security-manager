@@ -6,32 +6,57 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/batch.ts",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate:dev": "read name && npx prisma migrate dev --name $name",
+    "db:migrate:deploy": "npx prisma migrate deploy",
+    "db:studio": "npx prisma studio"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.3.4",
+    "@prisma/client": "^5.9.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-switch": "^1.0.3",
+    "@radix-ui/react-toast": "^1.1.5",
+    "axios": "^1.6.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "crypto": "^1.0.1",
+    "dayjs": "^1.11.10",
     "lucide-react": "^0.331.0",
+    "masto": "^6.5.2",
     "next": "14.1.0",
     "react": "^18",
     "react-aria-components": "^1.1.1",
     "react-dom": "^18",
+    "react-hook-form": "^7.50.1",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "ts-retry-promise": "^0.8.0",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.11.19",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-config-next": "14.1.0",
+    "eslint-plugin-react-hook-form": "^0.3.0",
     "postcss": "^8",
     "prettier": "^3.2.5",
+    "prisma": "^5.9.1",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^7.0.1"
   }
 }
