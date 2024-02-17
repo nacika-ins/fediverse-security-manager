@@ -1,3 +1,89 @@
 {
-  "extends": "next/core-web-vitals"
+  "plugins": [
+    "react",
+    "import",
+    "jsx-a11y",
+    "react-hooks",
+    "react-hook-form"
+  ],
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:react/recommended",
+    "airbnb",
+    "airbnb/hooks",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:react/recommended",
+    "plugin:react-hook-form/recommended"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "quotes": [2, "single", { "avoidEscape": true }],
+    "object-curly-newline": 0,
+    "no-unused-expressions": [2, { "allowShortCircuit": true }],
+    "react/jsx-filename-extension": [2, { "extensions": [".tsx"] }],
+    "import/extensions": [2, { "extensions": [".ts", ".tsx"] }],
+    "react/no-unused-prop-types": [1, { "skipShapeProps": true }],
+    "jsx-a11y/label-has-associated-control": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "max-len": [2, { "code": 150 }],
+    "jsx-a11y/anchor-is-valid": 0,
+    "no-await-in-loop": 0,
+
+    "import/prefer-default-export": 0,
+    "import/no-default-export": "error",
+    "react/button-has-type": 0,
+    "no-restricted-syntax": 0,
+    "no-console": [
+      "error",
+      { "allow": ["warn", "error", "trace", "info", "count"] }
+    ],
+    "react/function-component-definition": [
+      2,
+      { "namedComponents": "arrow-function" }
+    ],
+    "react/jsx-props-no-spreading": 0,
+    "react/require-default-props": 0,
+    "react/react-in-jsx-scope": 0,
+    "no-nested-ternary": 0,
+    "react/prop-types": 0,
+    "import/no-cycle": 2,
+    "no-misused-promises": 0,
+    "no-underscore-dangle": 0,
+    "camelcase": 0,
+    "react/display-name": 0,
+    "no-shadow": "off",
+    "indent": 0,
+    "implicit-arrow-linebreak": 0,
+    "operator-linebreak": 0,
+    "no-confusing-arrow": 0,
+    "no-spaced-func": 0,
+    "func-call-spacing": 0,
+    "function-paren-newline": 0,
+    "react/jsx-indent": 0,
+    "react/jsx-wrap-multilines": 0,
+    "react/jsx-one-expression-per-line": 0,
+    "padded-blocks": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "vite.config.ts",
+    "windi.config.ts"
+  ]
 }
