@@ -9,6 +9,8 @@
     "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/batch.ts",
     "start": "next start",
     "lint": "next lint",
+    "db:generate": "npx prisma generate",
+    "db:migrate:sync": "prisma migrate dev",
     "db:migrate:dev": "read name && npx prisma migrate dev --name $name",
     "db:migrate:deploy": "npx prisma migrate deploy",
     "db:studio": "npx prisma studio"
