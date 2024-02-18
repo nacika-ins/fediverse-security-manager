@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "batch": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register bin/batch.ts",
+    "batch": "tsx -r tsconfig-paths/register bin/batch.ts",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "npx prisma generate",
@@ -57,7 +57,7 @@
     "prettier": "^3.2.5",
     "prisma": "^5.9.1",
     "tailwindcss": "^3.3.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.7.1",
     "typescript": "^5.3.3",
     "typescript-eslint": "^7.0.1"
   }
