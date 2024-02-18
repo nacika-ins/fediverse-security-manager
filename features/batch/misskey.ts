@@ -100,6 +100,20 @@ const suspendUser = async ({ provider, userId }: { provider: TargetProvider, use
     return [];
   });
 
+const deleteNote = async ({ provider, noteId }: { provider: TargetProvider, noteId: string; }) =>
+  axios.post<void>(`${provider.apiEndpoint}/notes/delete`?.replace('//', '/'), {
+    i: provider.adminApiToken,
+    noteId,
+  }, {
+    headers: {
+      Authorization: `Bearer ${provider.apiToken}`,
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => res.data).catch((err) => {
+    console.debug('err =', err.response?.data);
+    return [];
+  });
+
 export const execMisskey = async (provider: TargetProvider, spamTexts: string[], lastChecked: Date | null | undefined) => {
 
   // const offsetDate = dayjs((lastChecked ? dayjs(lastChecked)
@@ -186,6 +200,10 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
         if (!targetUserId) {
           throw new Error('Target User ID is not found');
         }
+
+        // Delete note ( When 200OK, no value is returned )
+        console.debug('[deleteNote] noteId =', notification.note?.id);
+        await retry(() => deleteNote({ provider, noteId: notification.note?.id }));
 
         // Suspend User ( When 200OK, no value is returned )
         console.debug('[suspendUser] targetUserId =', targetUserId);
