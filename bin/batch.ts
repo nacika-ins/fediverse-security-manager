@@ -30,8 +30,9 @@ const execMastodon = async (provider: TargetProvider, spamTexts: string[], lastC
     accessToken: provider.adminApiToken,
   });
 
-  const offsetDate = dayjs((lastChecked ? dayjs(lastChecked)
-    .add(-48, 'h') : null) ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
+  // const offsetDate = dayjs((lastChecked ? dayjs(lastChecked)
+  //   .add(-48, 'h') : null) ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
+  const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
 
   let sinceId: string | null | undefined;
   let isBreak = false;
