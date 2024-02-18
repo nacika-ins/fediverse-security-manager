@@ -211,7 +211,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                                 </FormDescription>
                                 <FormControl>
                                   <div className="relative">
-                                    <Select {...field}>
+                                    <Select {...field} onValueChange={field.onChange}>
                                       <SelectTrigger className="w-[180px]">
                                         <SelectValue placeholder="Provider" />
                                       </SelectTrigger>
