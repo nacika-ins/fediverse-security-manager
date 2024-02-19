@@ -31,19 +31,19 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
   //   .add(-72, 'h') : null) ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
   const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
 
-  let sinceId: string | null | undefined;
+  let maxId: string | null | undefined;
 
   for (const _ of Array(999).fill(null)) {
 
     // eslint-disable-next-line no-loop-func
     const statuses = await retry(async () => masto.v1.timelines.public.list({
       limit: 40,
-      sinceId,
+      maxId,
     }));
-    sinceId = statuses[statuses.length - 1]?.id as string | null | undefined;
-    console.debug('sinceId =', sinceId);
+    maxId = statuses[statuses.length - 1]?.id as string | null | undefined;
+    console.debug('maxId =', maxId);
 
-    if (sinceId === null || sinceId === undefined) {
+    if (maxId === null || maxId === undefined) {
       console.debug('No more status');
       break;
     }
