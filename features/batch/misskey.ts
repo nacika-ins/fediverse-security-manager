@@ -150,12 +150,12 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
     console.debug('[new] sinceId =', sinceId);
 
     if (sinceId === null || sinceId === undefined) {
-      console.debug('No more notifications');
+      console.debug('No more notes');
       break;
     }
 
-    if (notes.every((notification) => dayjs(notification.createdAt).isBefore(offsetDate))) {
-      console.debug('No more notifications');
+    if (notes.every((note) => dayjs(note.createdAt).isBefore(offsetDate))) {
+      console.debug('No more notes');
       break;
     }
 
@@ -170,8 +170,8 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
       if (!note.userId) continue;
 
       console.debug('------------------------------------------------------------------------------------');
-      console.debug('notification.status.context =', note?.text);
-      console.debug('notification?.note?.files =', note?.files);
+      console.debug('note?.text =', note?.text);
+      console.debug('note?.files =', note?.files);
 
       // Get image md5
       const imageMD5s = note?.files?.map((media) =>
@@ -193,15 +193,15 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
         if (!found) continue;
 
         // report target
-        console.debug('[spam found] notification =', note?.text);
-        console.debug('notification.userId =', note.userId);
-        console.debug('notification.user?.id =', note.user?.id);
-        console.debug('notification.user?.name =', note.user?.name);
-        console.debug('notification.user?.username =', note.user?.username);
-        console.debug('notification.note?.id =', note?.id);
+        console.debug('[spam found] note?.text =', note?.text);
+        console.debug('note.userId =', note.userId);
+        console.debug('note.user?.id =', note.user?.id);
+        console.debug('note.user?.name =', note.user?.name);
+        console.debug('note.user?.username =', note.user?.username);
+        console.debug('note?.id =', note?.id);
 
         // Report spam ( When 200OK, no value is returned )
-        console.debug('[reportAbuse] notification.userId =', note.userId);
+        console.debug('[reportAbuse] note.userId =', note.userId);
         await retry(() => reportAbuse({ provider, userId: note.userId, comment: 'spam' }));
 
         // Reports
@@ -219,7 +219,7 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
         }
 
         // Delete note ( When 200OK, no value is returned )
-        console.debug('[deleteNote] noteId =', note?.id);
+        console.debug('[deleteNote] note?.id =', note?.id);
         await retry(() => deleteNote({ provider, noteId: note?.id }));
 
         // Suspend User ( When 200OK, no value is returned )
