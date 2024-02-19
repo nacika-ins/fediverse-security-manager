@@ -28,49 +28,48 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
   });
 
   // const offsetDate = dayjs((lastChecked ? dayjs(lastChecked)
-  //   .add(-48, 'h') : null) ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
-  const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
+  //   .add(-72, 'h') : null) ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
+  const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
 
   let sinceId: string | null | undefined;
 
   for (const _ of Array(999).fill(null)) {
 
     // eslint-disable-next-line no-loop-func
-    const notifications = await retry(async () => masto.v1.notifications.list({
+    const statuses = await retry(async () => masto.v1.timelines.public.list({
       limit: 40,
       sinceId,
-      types: ['mention'],
     }));
-    sinceId = notifications[notifications.length - 1]?.id as string | null | undefined;
+    sinceId = statuses[statuses.length - 1]?.id as string | null | undefined;
     console.debug('sinceId =', sinceId);
 
     if (sinceId === null || sinceId === undefined) {
-      console.debug('No more notifications');
+      console.debug('No more status');
       break;
     }
 
-    if (notifications.every((notification) => dayjs(notification.createdAt).isBefore(offsetDate))) {
-      console.debug('No more notifications');
+    if (statuses.every((status) => dayjs(status.createdAt).isBefore(offsetDate))) {
+      console.debug('No more status');
       break;
     }
 
-    for (const notification of notifications) {
+    for (const status of statuses) {
 
-      if (dayjs(notification.createdAt).isBefore(offsetDate)) {
+      if (dayjs(status.createdAt).isBefore(offsetDate)) {
         // eslint-disable-next-line no-continue
         continue;
       }
 
       // eslint-disable-next-line no-continue
-      if (!notification.account?.id) continue;
+      if (!status.account?.id) continue;
 
       console.debug('------------------------------------------------------------------------------------');
-      console.debug('notification.status.context =', notification?.status?.content);
-      console.debug('notification.status.mediaAttachments =', notification?.status?.mediaAttachments
+      console.debug('status?.content =', status?.content);
+      console.debug('status?.mediaAttachments =', status?.mediaAttachments
         ?.map((value) => value.remoteUrl));
 
       // Get image md5
-      const imageMD5s = (await Promise.all((notification.status?.mediaAttachments ?? []).map(async (media) => {
+      const imageMD5s = (await Promise.all((status?.mediaAttachments ?? []).map(async (media) => {
         if (!media.remoteUrl) return null;
         const image = await retry(
           async () => axios.get(media.remoteUrl as string, { responseType: 'arraybuffer' })).catch(() => null);
@@ -83,9 +82,9 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
 
         const found = await spamTexts.some((spamText) =>
           // Check text
-          notification.status?.content?.includes(spamText) ||
+          status?.content?.includes(spamText) ||
           // Check media url
-          notification.status?.mediaAttachments?.some((media) => media.remoteUrl?.includes(spamText)) ||
+          status?.mediaAttachments?.some((media) => media.remoteUrl?.includes(spamText)) ||
           // Check image md5
           imageMD5s.includes(spamText),
         );
@@ -94,16 +93,16 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
         if (!found) continue;
 
         // report target
-        console.debug('[spam found] notification =', notification.status?.content);
-        console.debug('notification.account?.id =', notification.account?.id);
-        console.debug('notification.account?.displayName =', notification.account?.displayName);
-        console.debug('notification.account?.username =', notification.account?.username);
-        console.debug('notification.status?.id =', notification.status?.id);
+        console.debug('[spam found] status?.content =', status?.content);
+        console.debug('status.account?.id =', status.account?.id);
+        console.debug('status.account?.displayName =', status.account?.displayName);
+        console.debug('status.account?.username =', status.account?.username);
+        console.debug('status?.id =', status?.id);
 
         // Report spam
         const report = await retry(async () => masto.v1.reports.create({
-          accountId: notification.account?.id,
-          statusIds: [notification.status?.id]?.filter((value): value is string => !!value),
+          accountId: status.account?.id,
+          statusIds: [status?.id]?.filter((value): value is string => !!value),
           comment: 'This is spam.',
           forward: true,
           category: 'spam',
