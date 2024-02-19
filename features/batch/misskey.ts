@@ -16,11 +16,11 @@ defaultRetryConfig.logger = (log) => {
   console.log('[retry]', log);
 };
 
-const getGlobalTimeline = async ({ provider, sinceId }: { provider: TargetProvider, sinceId: string | undefined | null }) =>
+const getGlobalTimeline = async ({ provider, untilId }: { provider: TargetProvider, untilId: string | undefined | null }) =>
   axios.post<MisskeyNotes>(`${provider.apiEndpoint}/notes/global-timeline`?.replace('//', '/'), {
     i: provider.apiToken,
     limit: 40,
-    sinceId,
+    untilId,
   }, {
     headers: {
       Authorization: `Bearer ${provider.apiToken}`,
@@ -33,7 +33,7 @@ const getGlobalTimeline = async ({ provider, sinceId }: { provider: TargetProvid
     return [] as MisskeyNotes;
   });
 
-const getNotifications = async ({ provider, sinceId }: { provider: TargetProvider, sinceId: string | undefined | null }) =>
+const getNotifications = async ({ provider, untilId }: { provider: TargetProvider, untilId: string | undefined | null }) =>
   axios.post<MisskeyNotifications>(`${provider.apiEndpoint}/i/notifications`?.replace('//', '/'), {
     i: provider.apiToken,
     limit: 40,
@@ -46,7 +46,7 @@ const getNotifications = async ({ provider, sinceId }: { provider: TargetProvide
     excludeTypes: [
       'follow',
     ],
-    sinceId,
+    untilId,
   }, {
     headers: {
       Authorization: `Bearer ${provider.apiToken}`,
@@ -138,18 +138,18 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
   //   .add(-72, 'h') : null) ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
   const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
 
-  let sinceId: string | null | undefined;
+  let untilId: string | null | undefined;
 
   for (const _ of Array(999).fill(null)) {
 
     // eslint-disable-next-line no-loop-func
-    const notes = await retry(() => getGlobalTimeline({ provider, sinceId }));
+    const notes = await retry(() => getGlobalTimeline({ provider, untilId }));
 
-    console.debug('[old] sinceId =', sinceId);
-    sinceId = notes[notes.length - 1]?.id as string | null | undefined;
-    console.debug('[new] sinceId =', sinceId);
+    console.debug('[old] untilId =', untilId);
+    untilId = notes[notes.length - 1]?.id as string | null | undefined;
+    console.debug('[new] untilId =', untilId);
 
-    if (sinceId === null || sinceId === undefined) {
+    if (untilId === null || untilId === undefined) {
       console.debug('No more notes');
       break;
     }
