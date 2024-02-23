@@ -273,6 +273,32 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                           />
                         </div>
 
+                        <div>
+                          <FormField
+                            control={form.control}
+                            name={`targetProviders.${index}.isReportOnly`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Reporting only mode
+                                </FormLabel>
+                                <FormDescription>
+                                  Only reporting is performed. Administrative privileges are not required.
+                                </FormDescription>
+                                <FormControl>
+                                  <div className="relative">
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <Switch onCheckedChange={field.onChange} checked={field.value} />
+                                      Enable
+                                    </div>
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
                       </CardContent>
                       <div className="absolute right-1 top-1">
                         <Button variant="ghost" size="icon" onClick={() => remove(index)}>
@@ -295,6 +321,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                         name: '',
                         providerType: 'mastodon',
                         adminApiToken: '',
+                        isReportOnly: false,
                       })}
                     >
                       Add provider
@@ -302,98 +329,6 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                   </div>
 
                 </div>
-
-                {/* <FormField */}
-                {/*  control={form.control} */}
-                {/*  name="email" */}
-                {/*  render={({ field }) => ( */}
-                {/*    <FormItem> */}
-                {/*      <FormLabel>Email</FormLabel> */}
-                {/*      <Select */}
-                {/*        onValueChange={field.onChange} */}
-                {/*        defaultValue={field.value} */}
-                {/*      > */}
-                {/*        <FormControl> */}
-                {/*          <SelectTrigger> */}
-                {/*            <SelectValue placeholder="Select a verified email to display" /> */}
-                {/*          </SelectTrigger> */}
-                {/*        </FormControl> */}
-                {/*        <SelectContent> */}
-                {/*          <SelectItem value="m@example.com"> */}
-                {/*            m@example.com */}
-                {/*          </SelectItem> */}
-                {/*          <SelectItem value="m@google.com"> */}
-                {/*            m@google.com */}
-                {/*          </SelectItem> */}
-                {/*          <SelectItem value="m@support.com"> */}
-                {/*            m@support.com */}
-                {/*          </SelectItem> */}
-                {/*        </SelectContent> */}
-                {/*      </Select> */}
-                {/*      <FormDescription> */}
-                {/*        You can manage verified email addresses in your{' '} */}
-                {/*        <Link href="/examples/forms">email settings</Link>. */}
-                {/*      </FormDescription> */}
-                {/*      <FormMessage /> */}
-                {/*    </FormItem> */}
-                {/*  )} */}
-                {/* /> */}
-                {/* <FormField */}
-                {/*  control={form.control} */}
-                {/*  name="bio" */}
-                {/*  render={({ field }) => ( */}
-                {/*    <FormItem> */}
-                {/*      <FormLabel>Bio</FormLabel> */}
-                {/*      <FormControl> */}
-                {/*        <Textarea */}
-                {/*          placeholder="Tell us a little bit about yourself" */}
-                {/*          className="resize-none" */}
-                {/*          {...field} */}
-                {/*        /> */}
-                {/*      </FormControl> */}
-                {/*      <FormDescription> */}
-                {/*        You can <span>@mention</span> other users and */}
-                {/*        organizations to link to them. */}
-                {/*      </FormDescription> */}
-                {/*      <FormMessage /> */}
-                {/*    </FormItem> */}
-                {/*  )} */}
-                {/* /> */}
-                {/* <div> */}
-                {/*  {fields.map((field, index) => ( */}
-                {/*    <FormField */}
-                {/*      control={form.control} */}
-                {/*      key={field.id} */}
-                {/*      name={`urls.${index}.value`} */}
-                {/*      render={({ field }) => ( */}
-                {/*        <FormItem> */}
-                {/*          <FormLabel className={cn(index !== 0 && 'sr-only')}> */}
-                {/*            URLs */}
-                {/*          </FormLabel> */}
-                {/*          <FormDescription */}
-                {/*            className={cn(index !== 0 && 'sr-only')} */}
-                {/*          > */}
-                {/*            Add links to your website, blog, or social media */}
-                {/*            profiles. */}
-                {/*          </FormDescription> */}
-                {/*          <FormControl> */}
-                {/*            <Input {...field} /> */}
-                {/*          </FormControl> */}
-                {/*          <FormMessage /> */}
-                {/*        </FormItem> */}
-                {/*      )} */}
-                {/*    /> */}
-                {/*  ))} */}
-                {/*  <Button */}
-                {/*    type="button" */}
-                {/*    variant="outline" */}
-                {/*    size="sm" */}
-                {/*    className="mt-2" */}
-                {/*    onClick={() => append({ value: '' })} */}
-                {/*  > */}
-                {/*    Add URL */}
-                {/*  </Button> */}
-                {/* </div> */}
                 <Button type="submit">Update</Button>
               </form>
             </Form>

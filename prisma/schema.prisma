@@ -43,6 +43,7 @@ model TargetProvider {
   apiEndpoint   String
   apiToken      String
   adminApiToken String
+  isReportOnly  Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }

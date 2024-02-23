@@ -218,6 +218,8 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
           throw new Error('Target User ID is not found');
         }
 
+        if (provider.isReportOnly) continue;
+
         // Delete note ( When 200OK, no value is returned )
         console.debug('[deleteNote] note?.id =', note?.id);
         await retry(() => deleteNote({ provider, noteId: note?.id }));
