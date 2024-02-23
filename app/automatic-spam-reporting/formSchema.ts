@@ -11,5 +11,6 @@ export const formSchema = z.object({
     apiEndpoint: z.string().url().min(1),
     apiToken: z.string().min(1),
     adminApiToken: z.string().min(1),
+    isReportOnly: z.boolean().default(false),
   })),
 });

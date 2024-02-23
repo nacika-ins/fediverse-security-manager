@@ -71,7 +71,8 @@
     "react/jsx-one-expression-per-line": 0,
     "padded-blocks": 0,
     "import/no-extraneous-dependencies": 0,
-    "no-unused-vars": [1, { "varsIgnorePattern": "_" }]
+    "no-unused-vars": [1, { "varsIgnorePattern": "_" }],
+    "no-continue": 0
   },
   "settings": {
     "import/resolver": {

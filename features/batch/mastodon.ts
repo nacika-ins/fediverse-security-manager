@@ -89,7 +89,6 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
           imageMD5s.includes(spamText),
         );
         console.debug('found =', found);
-        // eslint-disable-next-line no-continue
         if (!found) continue;
 
         // report target
@@ -100,6 +99,7 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
         console.debug('status?.id =', status?.id);
 
         // Report spam
+        console.debug('[Report spam] status.account?.id =', status.account?.id, 'statusId =', status?.id);
         const report = await retry(async () => masto.v1.reports.create({
           accountId: status.account?.id,
           statusIds: [status?.id]?.filter((value): value is string => !!value),
@@ -108,6 +108,8 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
           category: 'spam',
         }));
         console.debug('report =', report);
+
+        if (provider.isReportOnly) continue;
 
         // Suspend User
         console.debug('[Suspend User] report.targetAccount.id =', report.targetAccount.id);
@@ -124,8 +126,7 @@ export const execMastodon = async (provider: TargetProvider, spamTexts: string[]
         const resolveResult = await retry(async () => adminMasto.v1.admin.reports.$select(report.id).resolve());
         console.debug('resolveResult =', resolveResult);
 
-      } catch
-      (e) {
+      } catch (e) {
         console.error('error =', e);
       }
     }
