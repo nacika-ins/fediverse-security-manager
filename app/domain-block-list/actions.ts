@@ -5,8 +5,10 @@ import { formSchema } from '@/app/domain-block-list/formSchema';
 import { targetProviderRepository } from '@/repositories/target-provider.repository';
 import { createRestAPIClient } from 'masto';
 import {
+  getblockedHostsOfMeta,
   getFederationInstances,
   removeFederationAllFollowing,
+  updateblockedHostsOfMeta,
   updateFederationInstance,
 } from '@/features/vendorApis/misskey';
 
@@ -55,6 +57,15 @@ export async function addDomainBlock(
       provider,
       host: domain,
     });
+    const blockedHosts = await getblockedHostsOfMeta({
+      provider,
+    });
+    if (!blockedHosts.includes(domain)) {
+      await updateblockedHostsOfMeta({
+        provider,
+        blockedHosts: Array.from(new Set([...blockedHosts, domain]).values()),
+      });
+    }
   }
 
   return {};
@@ -105,8 +116,18 @@ export async function removeDomainBlock(
       host: domain,
       isSuspended: false,
     });
+    const blockedHosts = await getblockedHostsOfMeta({
+      provider,
+    });
+    if (blockedHosts.includes(domain)) {
+      await updateblockedHostsOfMeta({
+        provider,
+        blockedHosts: Array.from(
+          new Set(blockedHosts.filter((host) => host !== domain)).values(),
+        ),
+      });
+    }
   }
-
   return {};
 }
 
