@@ -16,6 +16,7 @@ Release notes are available via Patron.
 - [x] Automatic spam reporting
 - [x] Automatic account suspension
 - [x] Automatic spam detection
+- [x] Domain blocking
 - [ ] Automatic Tor IP address blocking
 - [ ] Automatic spammer IP address blocking
 - [ ] Preventing registration by instant email address

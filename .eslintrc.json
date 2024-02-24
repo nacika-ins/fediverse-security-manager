@@ -59,7 +59,7 @@
     "camelcase": 0,
     "react/display-name": 0,
     "no-shadow": "off",
-    "indent": ["error", 2, { "ignoredNodes": ["JSXElement"] }],
+    "indent": 0,
     "implicit-arrow-linebreak": 0,
     "operator-linebreak": 0,
     "no-confusing-arrow": 0,
@@ -72,7 +72,9 @@
     "padded-blocks": 0,
     "import/no-extraneous-dependencies": 0,
     "no-unused-vars": [1, { "varsIgnorePattern": "_" }],
-    "no-continue": 0
+    "no-continue": 0,
+    "react/no-array-index-key": 0,
+    "react/jsx-curly-newline": 0
   },
   "settings": {
     "import/resolver": {

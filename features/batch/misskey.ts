@@ -1,11 +1,15 @@
 import { TargetProvider } from '@prisma/client';
 import dayjs from 'dayjs';
-import axios from 'axios';
 
 import { defaultRetryConfig, retry } from 'ts-retry-promise';
-import { MisskeyNotifications } from '@/features/batch/response/misskey-notification';
-import { MisskeyReport } from '@/features/batch/response/misskey-report';
-import { MisskeyNotes } from '@/features/batch/response/misskey-notes';
+import {
+  abuseUserReports,
+  deleteNote,
+  getGlobalTimeline,
+  reportAbuse,
+  resolveAbuseUserReport,
+  suspendUser,
+} from '@/features/vendorApis/misskey';
 
 defaultRetryConfig.retries = 3;
 defaultRetryConfig.backoff = 'LINEAR';
@@ -16,132 +20,20 @@ defaultRetryConfig.logger = (log) => {
   console.log('[retry]', log);
 };
 
-const getGlobalTimeline = async ({ provider, untilId }: { provider: TargetProvider, untilId: string | undefined | null }) =>
-  axios.post<MisskeyNotes>(`${provider.apiEndpoint}/notes/global-timeline`?.replace('//', '/'), {
-    i: provider.apiToken,
-    limit: 40,
-    untilId,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) =>
-    res.data.sort((a: { createdAt: string }, b: { createdAt: string }) => dayjs(a.createdAt).isBefore(dayjs(b.createdAt)) ? 1 : -1),
-  ).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [] as MisskeyNotes;
-  });
-
-const getNotifications = async ({ provider, untilId }: { provider: TargetProvider, untilId: string | undefined | null }) =>
-  axios.post<MisskeyNotifications>(`${provider.apiEndpoint}/i/notifications`?.replace('//', '/'), {
-    i: provider.apiToken,
-    limit: 40,
-    unreadOnly: false,
-    markAsRead: true,
-    includeTypes: [
-      'mention',
-      'reply',
-    ],
-    excludeTypes: [
-      'follow',
-    ],
-    untilId,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) =>
-    res.data.sort((a: { createdAt: string }, b: { createdAt: string }) => dayjs(a.createdAt).isBefore(dayjs(b.createdAt)) ? 1 : -1),
-  ).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-const reportAbuse = async ({ provider, userId, comment }: { provider: TargetProvider, userId: string, comment: string }) =>
-  axios.post<void>(`${provider.apiEndpoint}/users/report-abuse`?.replace('//', '/'), {
-    i: provider.apiToken,
-    userId,
-    comment,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.data).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-const resolveAbuseUserReport = async ({ provider, reportId }: { provider: TargetProvider, reportId: string }) =>
-  axios.post<void>(`${provider.apiEndpoint}/admin/resolve-abuse-user-report`?.replace('//', '/'), {
-    i: provider.adminApiToken,
-    reportId,
-    forward: true,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.data).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-const abuseUserReports = async ({ provider }: { provider: TargetProvider }) =>
-  axios.post<MisskeyReport[]>(`${provider.apiEndpoint}/admin/abuse-user-reports`?.replace('//', '/'), {
-    i: provider.adminApiToken,
-    limit: 1,
-
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.data).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-const suspendUser = async ({ provider, userId }: { provider: TargetProvider, userId: string; }) =>
-  axios.post<void>(`${provider.apiEndpoint}/admin/suspend-user`?.replace('//', '/'), {
-    i: provider.adminApiToken,
-    userId,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.data).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-const deleteNote = async ({ provider, noteId }: { provider: TargetProvider, noteId: string; }) =>
-  axios.post<void>(`${provider.apiEndpoint}/notes/delete`?.replace('//', '/'), {
-    i: provider.adminApiToken,
-    noteId,
-  }, {
-    headers: {
-      Authorization: `Bearer ${provider.apiToken}`,
-      'Content-Type': 'application/json',
-    },
-  }).then((res) => res.data).catch((err) => {
-    console.debug('err =', err.response?.data);
-    return [];
-  });
-
-export const execMisskey = async (provider: TargetProvider, spamTexts: string[], lastChecked: Date | null | undefined) => {
-
+export const execMisskey = async (
+  provider: TargetProvider,
+  spamTexts: string[],
+  lastChecked: Date | null | undefined,
+) => {
   // const offsetDate = dayjs((lastChecked ? dayjs(lastChecked)
   //   .add(-72, 'h') : null) ?? new Date(Date.now() - 48 * 60 * 60 * 1000));
-  const offsetDate = dayjs(lastChecked ?? new Date(Date.now() - 72 * 60 * 60 * 1000));
+  const offsetDate = dayjs(
+    lastChecked ?? new Date(Date.now() - 72 * 60 * 60 * 1000),
+  );
 
   let untilId: string | null | undefined;
 
   for (const _ of Array(999).fill(null)) {
-
     // eslint-disable-next-line no-loop-func
     const notes = await retry(() => getGlobalTimeline({ provider, untilId }));
 
@@ -160,7 +52,6 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
     }
 
     for (const note of notes) {
-
       if (dayjs(note.createdAt).isBefore(offsetDate)) {
         // eslint-disable-next-line no-continue
         continue;
@@ -169,23 +60,26 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
       // eslint-disable-next-line no-continue
       if (!note.userId) continue;
 
-      console.debug('------------------------------------------------------------------------------------');
+      console.debug(
+        '------------------------------------------------------------------------------------',
+      );
       console.debug('note?.text =', note?.text);
       console.debug('note?.files =', note?.files);
 
       // Get image md5
-      const imageMD5s = note?.files?.map((media) =>
-        media.md5).filter((md5) => md5) ?? [];
+      const imageMD5s =
+        note?.files?.map((media) => media.md5).filter((md5) => md5) ?? [];
       console.debug('md5 =', imageMD5s);
 
       try {
-        const found = await spamTexts.some((spamText) =>
-          // Check text
-          note?.text?.includes(spamText) ||
-          // Check media url
-          note?.files?.some((media) => media.url?.includes(spamText)) ||
-          // Check image md5
-          imageMD5s.includes(spamText),
+        const found = await spamTexts.some(
+          (spamText) =>
+            // Check text
+            note?.text?.includes(spamText) ||
+            // Check media url
+            note?.files?.some((media) => media.url?.includes(spamText)) ||
+            // Check image md5
+            imageMD5s.includes(spamText),
         );
 
         console.debug('found =', found);
@@ -202,7 +96,9 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
 
         // Report spam ( When 200OK, no value is returned )
         console.debug('[reportAbuse] note.userId =', note.userId);
-        await retry(() => reportAbuse({ provider, userId: note.userId, comment: 'spam' }));
+        await retry(() =>
+          reportAbuse({ provider, userId: note.userId, comment: 'spam' }),
+        );
 
         // Reports
         console.debug('[abuseUserReports]');
@@ -231,13 +127,9 @@ export const execMisskey = async (provider: TargetProvider, spamTexts: string[],
         // Resolve Report ( When 200OK, no value is returned )
         console.debug('[resolveAbuseUserReport] reportId =', reportId);
         await retry(() => resolveAbuseUserReport({ provider, reportId }));
-
       } catch (error) {
         console.debug('error =', error);
       }
-
     }
-
   }
-
 };
