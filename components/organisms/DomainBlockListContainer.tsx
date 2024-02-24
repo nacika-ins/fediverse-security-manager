@@ -1,7 +1,7 @@
 import React, {
   FC,
   PropsWithChildren,
-  useCallback,
+  useEffect,
   useLayoutEffect,
   useState,
 } from 'react';
@@ -9,37 +9,16 @@ import { SettingsNav } from '@/components/molecules/SettingsNav';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from '@/components/ui/use-toast';
 import { cn } from '@/lib/utils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
-import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Cross1Icon, RocketIcon } from '@radix-ui/react-icons';
-
+import { Cross1Icon } from '@radix-ui/react-icons';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  get,
   addDomainBlock,
+  get,
   removeDomainBlock,
 } from '@/app/domain-block-list/actions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -55,13 +34,6 @@ import {
 import { AddInputModal } from '@/components/molecules/AddInputModal';
 import useSWR from 'swr';
 
-type FormValues = z.infer<typeof formSchema>;
-
-// This can come from your database or API.
-const defaultValues: Partial<FormValues> = {
-  targetProviderId: null,
-};
-
 export const DomainBlockListContainer: FC<
   {
     addDomainBlock: typeof addDomainBlock;
@@ -69,24 +41,7 @@ export const DomainBlockListContainer: FC<
     get: typeof get;
   } & PropsWithChildren
 > = ({ removeDomainBlock, addDomainBlock, get }) => {
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-    mode: 'onChange',
-  });
-
   const { data, mutate, isLoading: loading } = useSWR('targetProviders', get);
-
-  useLayoutEffect(() => {
-    if (!data) return;
-    form.reset(data);
-  }, [data, form]);
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'targetProviders',
-    keyName: '_id',
-  });
 
   return (
     <div className="hidden space-y-6 p-10 pb-16 md:block">
@@ -112,7 +67,7 @@ export const DomainBlockListContainer: FC<
             </div>
           ) : (
             <div className="flex flex-col gap-8">
-              {fields.map((field, index) => (
+              {data?.targetProviders.map((field, index) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <Card
                   key={`targetProviders.${index}`}
