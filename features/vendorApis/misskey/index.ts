@@ -334,3 +334,54 @@ export const removeFederationAllFollowing = async ({
       console.debug('err =', err.response?.data);
       return [];
     });
+
+export const getblockedHostsOfMeta = async ({
+  provider,
+}: {
+  provider: TargetProvider;
+}) =>
+  axios
+    .post<{ blockedHosts: string[] }>(
+      `${provider.apiEndpoint}/admin/meta`?.replace('//', '/'),
+      {
+        i: provider.adminApiToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data.blockedHosts)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [] as string[];
+    });
+
+export const updateblockedHostsOfMeta = async ({
+  provider,
+  blockedHosts,
+}: {
+  provider: TargetProvider;
+  blockedHosts: string[];
+}) =>
+  axios
+    .post<void>(
+      `${provider.apiEndpoint}/admin/update-meta`?.replace('//', '/'),
+      {
+        i: provider.adminApiToken,
+        blockedHosts,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [];
+    });
