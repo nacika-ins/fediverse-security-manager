@@ -2,7 +2,6 @@ import { prismaClientContainer } from '@/infrastructures/prisma-client.container
 import { Prisma } from '@prisma/client';
 
 export const targetProviderRepository = {
-
   /**
    * Get target providers
    */
@@ -14,14 +13,25 @@ export const targetProviderRepository = {
   /**
    * Save target providers
    */
-  async saveTargetProviders(targetProviders: Prisma.TargetProviderCreateInput[]) {
+  async saveTargetProviders(
+    targetProviders: Prisma.TargetProviderCreateInput[],
+  ) {
     const { prismaClient } = prismaClientContainer();
     await prismaClient.$transaction(async (prisma) => {
       await prisma.targetProvider.deleteMany({});
-      await Promise.all(targetProviders.map(async (value) => {
-        await prisma.targetProvider.create({ data: value });
-      }));
+      await Promise.all(
+        targetProviders.map(async (value) => {
+          await prisma.targetProvider.create({ data: value });
+        }),
+      );
     });
   },
 
+  /**
+   * get Target Provider
+   */
+  async getTargetProvider(id: number) {
+    const { prismaClient } = prismaClientContainer();
+    return prismaClient.targetProvider.findFirst({ where: { id } });
+  },
 };

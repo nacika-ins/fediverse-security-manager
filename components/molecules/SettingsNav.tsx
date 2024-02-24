@@ -15,6 +15,10 @@ const items = [
     href: '/spam-text-list',
   },
   {
+    title: 'Domain block list',
+    href: '/domain-block-list',
+  },
+  {
     title: 'Support us on Patreon',
     href: 'https://www.patreon.com/nacika',
     icon: 'patreon',
