@@ -15,7 +15,7 @@ export const getGlobalTimeline = async ({
 }) =>
   axios
     .post<MisskeyNotes>(
-      `${provider.apiEndpoint}/notes/global-timeline`?.replace('//', '/'),
+      `${provider.apiEndpoint}/notes/global-timeline`?.replace('//api', '/api'),
       {
         i: provider.apiToken,
         limit: 40,
@@ -51,7 +51,7 @@ export const getNotifications = async ({
 }) =>
   axios
     .post<MisskeyNotifications>(
-      `${provider.apiEndpoint}/i/notifications`?.replace('//', '/'),
+      `${provider.apiEndpoint}/i/notifications`?.replace('//api', '/api'),
       {
         i: provider.apiToken,
         limit: 40,
@@ -93,7 +93,7 @@ export const reportAbuse = async ({
 }) =>
   axios
     .post<void>(
-      `${provider.apiEndpoint}/users/report-abuse`?.replace('//', '/'),
+      `${provider.apiEndpoint}/users/report-abuse`?.replace('//api', '/api'),
       {
         i: provider.apiToken,
         userId,
@@ -121,8 +121,8 @@ export const resolveAbuseUserReport = async ({
   axios
     .post<void>(
       `${provider.apiEndpoint}/admin/resolve-abuse-user-report`?.replace(
-        '//',
-        '/',
+        '//api',
+        '/api',
       ),
       {
         i: provider.adminApiToken,
@@ -148,7 +148,10 @@ export const abuseUserReports = async ({
 }) =>
   axios
     .post<MisskeyReport[]>(
-      `${provider.apiEndpoint}/admin/abuse-user-reports`?.replace('//', '/'),
+      `${provider.apiEndpoint}/admin/abuse-user-reports`?.replace(
+        '//api',
+        '/api',
+      ),
       {
         i: provider.adminApiToken,
         limit: 1,
@@ -174,7 +177,7 @@ export const suspendUser = async ({
 }) =>
   axios
     .post<void>(
-      `${provider.apiEndpoint}/admin/suspend-user`?.replace('//', '/'),
+      `${provider.apiEndpoint}/admin/suspend-user`?.replace('//api', '/api'),
       {
         i: provider.adminApiToken,
         userId,
@@ -200,7 +203,7 @@ export const deleteNote = async ({
 }) =>
   axios
     .post<void>(
-      `${provider.apiEndpoint}/notes/delete`?.replace('//', '/'),
+      `${provider.apiEndpoint}/notes/delete`?.replace('//api', '/api'),
       {
         i: provider.adminApiToken,
         noteId,
@@ -245,7 +248,7 @@ export const getFederationInstances = async ({
 }) =>
   axios
     .post<FederationInstance[]>(
-      `${provider.apiEndpoint}/federation/instances`?.replace('//', '/'),
+      `${provider.apiEndpoint}/federation/instances`?.replace('//api', '/api'),
       {
         i: provider.adminApiToken,
         host,
@@ -284,8 +287,8 @@ export const updateFederationInstance = async ({
   axios
     .post<void>(
       `${provider.apiEndpoint}/admin/federation/update-instance`?.replace(
-        '//',
-        '/',
+        '//api',
+        '/api',
       ),
       {
         i: provider.adminApiToken,
@@ -315,8 +318,8 @@ export const removeFederationAllFollowing = async ({
   axios
     .post<void>(
       `${provider.apiEndpoint}/admin/federation/remove-all-following`?.replace(
-        '//',
-        '/',
+        '//api',
+        '/api',
       ),
       {
         i: provider.adminApiToken,
@@ -342,7 +345,7 @@ export const getblockedHostsOfMeta = async ({
 }) =>
   axios
     .post<{ blockedHosts: string[] }>(
-      `${provider.apiEndpoint}/admin/meta`?.replace('//', '/'),
+      `${provider.apiEndpoint}/admin/meta`?.replace('//api', '/api'),
       {
         i: provider.adminApiToken,
       },
@@ -368,10 +371,88 @@ export const updateblockedHostsOfMeta = async ({
 }) =>
   axios
     .post<void>(
-      `${provider.apiEndpoint}/admin/update-meta`?.replace('//', '/'),
+      `${provider.apiEndpoint}/admin/update-meta`?.replace('//api', '/api'),
       {
         i: provider.adminApiToken,
         blockedHosts,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [];
+    });
+
+export const getAdminQueueInboxDelayed = async ({
+  provider,
+}: {
+  provider: TargetProvider;
+}) =>
+  axios
+    .post<[string, number][]>(
+      `${provider.apiEndpoint}/admin/queue/inbox-delayed`?.replace(
+        '//api',
+        '/api',
+      ),
+      {
+        i: provider.adminApiToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [];
+    });
+
+export const getAdminQueueDeliverDelayed = async ({
+  provider,
+}: {
+  provider: TargetProvider;
+}) =>
+  axios
+    .post<[string, number][]>(
+      `${provider.apiEndpoint}/admin/queue/deliver-delayed`?.replace(
+        '//api',
+        '/api',
+      ),
+      {
+        i: provider.adminApiToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [];
+    });
+
+export const clearAdminQueue = async ({
+  provider,
+}: {
+  provider: TargetProvider;
+}) =>
+  axios
+    .post<[string, number][]>(
+      `${provider.apiEndpoint}/admin/queue/clear`?.replace('//api', '/api'),
+      {
+        i: provider.adminApiToken,
       },
       {
         headers: {

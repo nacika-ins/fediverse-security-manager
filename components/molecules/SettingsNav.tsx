@@ -19,6 +19,10 @@ const items = [
     href: '/domain-block-list',
   },
   {
+    title: 'Delayed server list',
+    href: '/delayed-server-list',
+  },
+  {
     title: 'Support us on Patreon',
     href: 'https://www.patreon.com/nacika',
     icon: 'patreon',

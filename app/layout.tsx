@@ -19,6 +19,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <title>Fediverse Security Manager</title>
+      </head>
       <body
         className={cn(
           inter.className,

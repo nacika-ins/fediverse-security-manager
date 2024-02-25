@@ -1,9 +1,23 @@
-import React, { FC, PropsWithChildren, useCallback, useLayoutEffect, useState } from 'react';
+import React, {
+  FC,
+  PropsWithChildren,
+  useCallback,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import { SettingsNav } from '@/components/molecules/SettingsNav';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +30,13 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Cross1Icon, RocketIcon } from '@radix-ui/react-icons';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { formSchema } from '@/app/automatic-spam-reporting/formSchema';
 import { get, update } from '@/app/automatic-spam-reporting/actions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -31,8 +51,9 @@ const defaultValues: Partial<FormValues> = {
   targetProviders: [],
 };
 
-export const SettingContainer: FC<{ update: typeof update; get: typeof get } & PropsWithChildren> = ({ update, get }) => {
-
+export const SettingContainer: FC<
+  { update: typeof update; get: typeof get } & PropsWithChildren
+> = ({ update, get }) => {
   const [loading, setLoading] = useState(true);
 
   const form = useForm<FormValues>({
@@ -41,30 +62,36 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
     mode: 'onChange',
   });
 
-  const onSubmit = useCallback(async (data: FormValues) => {
-    await update(data).catch((error) => {
-      toast({
-        title: 'Failed to update',
-        duration: 2000,
-        variant: 'destructive',
-      });
-    }).then(() => {
-      toast({
-        title: 'Updated',
-        duration: 2000,
-        variant: 'default',
-      });
-    });
-  }, [update]);
+  const onSubmit = useCallback(
+    async (data: FormValues) => {
+      await update(data)
+        .catch((error) => {
+          toast({
+            title: 'Failed to update',
+            duration: 2000,
+            variant: 'destructive',
+          });
+        })
+        .then(() => {
+          toast({
+            title: 'Updated',
+            duration: 2000,
+            variant: 'default',
+          });
+        });
+    },
+    [update],
+  );
 
   useLayoutEffect(() => {
     setLoading(true);
-    get().then((data) => {
-      form.reset(data);
-    }).finally(() => {
-      setLoading(false);
-    });
-
+    get()
+      .then((data) => {
+        form.reset(data);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [form, get]);
 
   const { fields, append, remove } = useFieldArray({
@@ -76,9 +103,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
     <div className="hidden space-y-6 p-10 pb-16 md:block">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-        <p className="text-muted-foreground">
-          Automated anti-spam settings are available.
-        </p>
+        <p className="text-muted-foreground">Automated anti-spam settings</p>
       </div>
       <Separator className="my-6" />
       <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
@@ -86,7 +111,6 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
           <SettingsNav />
         </aside>
         <div className="flex-1 lg:max-w-2xl">
-
           {loading ? (
             <div className="flex flex-col space-y-3">
               <Skeleton className="h-[125px] w-full rounded-xl" />
@@ -96,10 +120,11 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
               </div>
             </div>
           ) : (
-
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
                 <FormField
                   control={form.control}
                   name="serviceFlag.automaticSpamReporting"
@@ -108,13 +133,17 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                       <FormLabel>Enable automatic spam reporting</FormLabel>
                       <FormControl>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Switch onCheckedChange={field.onChange} checked={field.value} /> Enable
+                          <Switch
+                            onCheckedChange={field.onChange}
+                            checked={field.value}
+                          />{' '}
+                          Enable
                         </div>
                       </FormControl>
                       <FormDescription>
-                        If this feature is enabled, the system will periodically patrol
-                        the notification timeline and automatically report any spam and automatically resolve the
-                        spam.
+                        If this feature is enabled, the system will periodically
+                        patrol the notification timeline and automatically
+                        report any spam and automatically resolve the spam.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -125,7 +154,10 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                 <div className="flex flex-col gap-8">
                   {fields.map((field, index) => (
                     // eslint-disable-next-line react/no-array-index-key
-                    <Card key={`targetProviders.${index}`} className={cn('w-full', 'relative')}>
+                    <Card
+                      key={`targetProviders.${index}`}
+                      className={cn('w-full', 'relative')}
+                    >
                       <CardHeader>
                         <CardTitle># {index + 1}</CardTitle>
                       </CardHeader>
@@ -145,7 +177,10 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                               control={form.control}
                               name={`targetProviders.${index}.enabled`}
                               render={({ field }) => (
-                                <Switch onCheckedChange={field.onChange} checked={field.value} />
+                                <Switch
+                                  onCheckedChange={field.onChange}
+                                  checked={field.value}
+                                />
                               )}
                             />
                           </div>
@@ -155,9 +190,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                               name={`targetProviders.${index}.name`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>
-                                    Service name
-                                  </FormLabel>
+                                  <FormLabel>Service name</FormLabel>
                                   <FormDescription>
                                     Please enter the name of the service
                                   </FormDescription>
@@ -179,21 +212,26 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             name={`targetProviders.${index}.providerType`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Provider type
-                                </FormLabel>
+                                <FormLabel>Provider type</FormLabel>
                                 <FormDescription>
                                   Please select your provider type
                                 </FormDescription>
                                 <FormControl>
                                   <div className="relative">
-                                    <Select {...field} onValueChange={field.onChange}>
+                                    <Select
+                                      {...field}
+                                      onValueChange={field.onChange}
+                                    >
                                       <SelectTrigger className="w-[180px]">
                                         <SelectValue placeholder="Provider" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="mastodon">Mastodon</SelectItem>
-                                        <SelectItem value="misskey">Misskey</SelectItem>
+                                        <SelectItem value="mastodon">
+                                          Mastodon
+                                        </SelectItem>
+                                        <SelectItem value="misskey">
+                                          Misskey
+                                        </SelectItem>
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -210,9 +248,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             name={`targetProviders.${index}.apiEndpoint`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  API endpoint
-                                </FormLabel>
+                                <FormLabel>API endpoint</FormLabel>
                                 <FormDescription>
                                   Please enter an API endpoint
                                 </FormDescription>
@@ -233,9 +269,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             name={`targetProviders.${index}.apiToken`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Reporter API token
-                                </FormLabel>
+                                <FormLabel>Reporter API token</FormLabel>
                                 <FormDescription>
                                   Please enter an Reporter API token
                                 </FormDescription>
@@ -256,9 +290,7 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             name={`targetProviders.${index}.adminApiToken`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Admin API token
-                                </FormLabel>
+                                <FormLabel>Admin API token</FormLabel>
                                 <FormDescription>
                                   Please enter an Admin API token
                                 </FormDescription>
@@ -279,16 +311,18 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             name={`targetProviders.${index}.isReportOnly`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Reporting only mode
-                                </FormLabel>
+                                <FormLabel>Reporting only mode</FormLabel>
                                 <FormDescription>
-                                  Only reporting is performed. Administrative privileges are not required.
+                                  Only reporting is performed. Administrative
+                                  privileges are not required.
                                 </FormDescription>
                                 <FormControl>
                                   <div className="relative">
                                     <div className="flex items-center gap-2 text-sm">
-                                      <Switch onCheckedChange={field.onChange} checked={field.value} />
+                                      <Switch
+                                        onCheckedChange={field.onChange}
+                                        checked={field.value}
+                                      />
                                       Enable
                                     </div>
                                   </div>
@@ -298,15 +332,17 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                             )}
                           />
                         </div>
-
                       </CardContent>
                       <div className="absolute right-1 top-1">
-                        <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => remove(index)}
+                        >
                           <Cross1Icon className="w-4 h-4 text-gray-400" />
                         </Button>
                       </div>
                     </Card>
-
                   ))}
                   <div className="flex justify-end">
                     <Button
@@ -314,20 +350,21 @@ export const SettingContainer: FC<{ update: typeof update; get: typeof get } & P
                       variant="outline"
                       size="sm"
                       className="mt-2"
-                      onClick={() => append({
-                        apiEndpoint: '',
-                        apiToken: '',
-                        enabled: true,
-                        name: '',
-                        providerType: 'mastodon',
-                        adminApiToken: '',
-                        isReportOnly: false,
-                      })}
+                      onClick={() =>
+                        append({
+                          apiEndpoint: '',
+                          apiToken: '',
+                          enabled: true,
+                          name: '',
+                          providerType: 'mastodon',
+                          adminApiToken: '',
+                          isReportOnly: false,
+                        })
+                      }
                     >
                       Add provider
                     </Button>
                   </div>
-
                 </div>
                 <Button type="submit">Update</Button>
               </form>
