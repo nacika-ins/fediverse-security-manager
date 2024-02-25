@@ -5,7 +5,11 @@ import { cn } from '@/lib/utils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { addDomainBlock, get } from '@/app/delayed-server-list/actions';
+import {
+  addDomainBlock,
+  clearAdminQueue,
+  get,
+} from '@/app/delayed-server-list/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -124,6 +128,21 @@ export const DelayedServerListContainer: FC<
                           ))}
                         </TableBody>
                       </Table>
+                      <div className="mt-2">
+                        <ConfirmModal
+                          buttonTitle="Clear queue"
+                          title="Clear queue"
+                          description="Clear all delayed queues."
+                          submitButtonTitle="Clear"
+                          onSubmit={async () => {
+                            const result = await clearAdminQueue({
+                              targetProviderId: field.id,
+                            });
+                            console.debug('result =', result);
+                            await mutate();
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

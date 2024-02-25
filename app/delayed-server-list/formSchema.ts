@@ -21,4 +21,9 @@ export const formSchema = z.object({
       domain: z.string().min(1),
     })
     .optional(),
+  clearAdminQueue: z
+    .object({
+      targetProviderId: z.number().nonnegative(),
+    })
+    .optional(),
 });

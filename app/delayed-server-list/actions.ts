@@ -5,6 +5,7 @@ import { formSchema } from '@/app/delayed-server-list/formSchema';
 import { targetProviderRepository } from '@/repositories/target-provider.repository';
 import { createRestAPIClient } from 'masto';
 import {
+  clearAdminQueue as _clearAdminQueue,
   getAdminQueueDeliverDelayed,
   getAdminQueueInboxDelayed,
   getblockedHostsOfMeta,
@@ -165,4 +166,34 @@ export async function get(): Promise<z.infer<typeof formSchema>> {
       }),
     ),
   };
+}
+
+export async function clearAdminQueue(
+  props: NonNullable<
+    Pick<z.infer<typeof formSchema>, 'clearAdminQueue'>
+  >['clearAdminQueue'],
+) {
+  if (!props) {
+    throw new Error('props is required');
+  }
+  const { targetProviderId } = props;
+
+  if (!targetProviderId) {
+    throw new Error('targetProviderId is required');
+  }
+
+  const provider =
+    await targetProviderRepository.getTargetProvider(targetProviderId);
+
+  if (!provider) {
+    throw new Error('provider not found');
+  }
+
+  if (provider.providerType === 'mastodon') {
+    throw new Error('providerType mastodon is not supported');
+  } else if (provider.providerType === 'misskey') {
+    await _clearAdminQueue({
+      provider,
+    });
+  }
 }

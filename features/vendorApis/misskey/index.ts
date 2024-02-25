@@ -442,3 +442,27 @@ export const getAdminQueueDeliverDelayed = async ({
       console.debug('err =', err.response?.data);
       return [];
     });
+
+export const clearAdminQueue = async ({
+  provider,
+}: {
+  provider: TargetProvider;
+}) =>
+  axios
+    .post<[string, number][]>(
+      `${provider.apiEndpoint}/admin/queue/clear`?.replace('//api', '/api'),
+      {
+        i: provider.adminApiToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${provider.apiToken}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    )
+    .then((res) => res.data)
+    .catch((err) => {
+      console.debug('err =', err.response?.data);
+      return [];
+    });
