@@ -9,17 +9,16 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import React, { useCallback, useRef, useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { infer, z } from 'zod';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 const schema = z.object({
   value: z.string().min(1).includes('.'),
 });
 
-export const AddInputModal: React.FC<{
+export const ConfirmModal: React.FC<{
   buttonTitle: string;
   title: string;
   description: string;
@@ -83,13 +82,7 @@ export const AddInputModal: React.FC<{
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
-          <div className="flex items-center space-x-2 mt-2">
-            <div className="grid flex-1 gap-2">
-              <Input {...register('value')} />
-              <p className="text-red-500 text-sm">{errors.value?.message}</p>
-            </div>
-          </div>
-          <DialogFooter className="sm:justify-end">
+          <DialogFooter className="sm:justify-end mt-2">
             <DialogClose asChild>
               <Button
                 type="button"

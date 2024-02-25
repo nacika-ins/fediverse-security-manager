@@ -1,28 +1,12 @@
-import React, {
-  FC,
-  PropsWithChildren,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import { SettingsNav } from '@/components/molecules/SettingsNav';
-import { useFieldArray, useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Cross1Icon } from '@radix-ui/react-icons';
-import {
-  addDomainBlock,
-  get,
-  removeDomainBlock,
-} from '@/app/domain-block-list/actions';
+import { addDomainBlock, get } from '@/app/delayed-server-list/actions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formSchema } from '@/app/domain-block-list/formSchema';
 import {
   Table,
   TableBody,
@@ -31,17 +15,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AddInputModal } from '@/components/molecules/AddInputModal';
 import useSWR from 'swr';
+import { ConfirmModal } from '@/components/molecules/ConfirmModal';
+import { SearchIcon } from 'lucide-react';
 
-export const DomainBlockListContainer: FC<
+export const DelayedServerListContainer: FC<
   {
     addDomainBlock: typeof addDomainBlock;
-    removeDomainBlock: typeof removeDomainBlock;
     get: typeof get;
   } & PropsWithChildren
-> = ({ removeDomainBlock, addDomainBlock, get }) => {
-  const { data, mutate, isLoading: loading } = useSWR('targetProviders', get);
+> = ({ addDomainBlock, get }) => {
+  const {
+    data,
+    mutate,
+    isLoading: loading,
+  } = useSWR('targetProviders', get, {
+    refreshInterval: 10000,
+  });
 
   return (
     <div className="hidden space-y-6 p-10 pb-16 md:block">
@@ -82,51 +72,56 @@ export const DomainBlockListContainer: FC<
                         <TableHeader>
                           <TableRow>
                             <TableHead className="w-auto">Domain</TableHead>
+                            <TableHead className="w-[100px]">Queue</TableHead>
                             <TableHead className="w-[100px]">Action</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {field.blockDomains?.map((blockDomain, index) => (
-                            <TableRow key={blockDomain.name}>
-                              <TableCell>{blockDomain.name}</TableCell>
+                          {field.delayedServers?.map((domain, index) => (
+                            <TableRow key={domain.name}>
                               <TableCell>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={async () => {
-                                    const result = await removeDomainBlock({
-                                      id: blockDomain.id,
-                                      domain: blockDomain.name,
+                                <div className="flex gap-1 items-center">
+                                  <a
+                                    className="hover:underline"
+                                    href={domain.name}
+                                    rel="nofollow noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    {domain.name}
+                                  </a>
+
+                                  <a
+                                    className="hover:text-gray-500"
+                                    href={`https://www.google.com/search?q=${domain.name}`}
+                                    rel="nofollow noopener noreferrer"
+                                    target="_blank"
+                                  >
+                                    <SearchIcon className="w-4 h-4" />
+                                  </a>
+                                </div>
+                              </TableCell>
+                              <TableCell>{domain.queue}</TableCell>
+                              <TableCell>
+                                <ConfirmModal
+                                  buttonTitle="Block"
+                                  title="Add to Domain Block"
+                                  description="If the server is down or very slow, blocking the domain will reduce the load. However, please
+                                  note that communication with the server you block will be impossible and your followers will be removed."
+                                  submitButtonTitle="Block"
+                                  onSubmit={async () => {
+                                    const result = await addDomainBlock({
+                                      domain: domain.name,
                                       targetProviderId: field.id,
                                     });
                                     console.debug('result =', result);
                                     await mutate();
                                   }}
-                                >
-                                  <Cross1Icon />
-                                </Button>
+                                />
                               </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
-
-                      <div className="mt-2">
-                        <AddInputModal
-                          buttonTitle="Add domain"
-                          title="Adding domains to be blocked"
-                          description="Add the domain you wish to block. Followers and followers will be removed upon addition."
-                          submitButtonTitle="Add"
-                          onSubmit={async (data) => {
-                            const result = await addDomainBlock({
-                              domain: data.value,
-                              targetProviderId: field.id,
-                            });
-                            console.debug('result =', result);
-                            await mutate();
-                          }}
-                        />
-                      </div>
                     </div>
                   </CardContent>
                 </Card>

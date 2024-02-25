@@ -74,7 +74,8 @@
     "no-unused-vars": [1, { "varsIgnorePattern": "_" }],
     "no-continue": 0,
     "react/no-array-index-key": 0,
-    "react/jsx-curly-newline": 0
+    "react/jsx-curly-newline": 0,
+    "jsx-a11y/control-has-associated-label": 0
   },
   "settings": {
     "import/resolver": {
