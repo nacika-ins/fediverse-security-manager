@@ -83,7 +83,7 @@ export const DelayedServerListContainer: FC<
                                 <div className="flex gap-1 items-center">
                                   <a
                                     className="hover:underline"
-                                    href={domain.name}
+                                    href={`https://${domain.name}`}
                                     rel="nofollow noopener noreferrer"
                                     target="_blank"
                                   >
