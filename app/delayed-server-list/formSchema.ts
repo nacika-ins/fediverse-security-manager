@@ -10,6 +10,7 @@ export const formSchema = z.object({
         z.object({
           name: z.string().min(1),
           queue: z.number().min(0),
+          isBlocked: z.boolean(),
         }),
       ),
     }),

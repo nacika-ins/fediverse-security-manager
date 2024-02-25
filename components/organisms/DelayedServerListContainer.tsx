@@ -102,21 +102,23 @@ export const DelayedServerListContainer: FC<
                               </TableCell>
                               <TableCell>{domain.queue}</TableCell>
                               <TableCell>
-                                <ConfirmModal
-                                  buttonTitle="Block"
-                                  title="Add to Domain Block"
-                                  description="If the server is down or very slow, blocking the domain will reduce the load. However, please
+                                {domain.isBlocked ? null : (
+                                  <ConfirmModal
+                                    buttonTitle="Block"
+                                    title="Add to Domain Block"
+                                    description="If the server is down or very slow, blocking the domain will reduce the load. However, please
                                   note that communication with the server you block will be impossible and your followers will be removed."
-                                  submitButtonTitle="Block"
-                                  onSubmit={async () => {
-                                    const result = await addDomainBlock({
-                                      domain: domain.name,
-                                      targetProviderId: field.id,
-                                    });
-                                    console.debug('result =', result);
-                                    await mutate();
-                                  }}
-                                />
+                                    submitButtonTitle="Block"
+                                    onSubmit={async () => {
+                                      const result = await addDomainBlock({
+                                        domain: domain.name,
+                                        targetProviderId: field.id,
+                                      });
+                                      console.debug('result =', result);
+                                      await mutate();
+                                    }}
+                                  />
+                                )}
                               </TableCell>
                             </TableRow>
                           ))}

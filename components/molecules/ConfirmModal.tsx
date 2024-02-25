@@ -10,20 +10,14 @@ import {
 } from '@/components/ui/dialog';
 import React, { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-const schema = z.object({
-  value: z.string().min(1).includes('.'),
-});
+import { useForm } from 'react-hook-form';
 
 export const ConfirmModal: React.FC<{
   buttonTitle: string;
   title: string;
   description: string;
   submitButtonTitle: string;
-  onSubmit: (data: z.infer<typeof schema>) => void;
+  onSubmit: () => void;
 }> = ({
   buttonTitle,
   title,
@@ -36,26 +30,19 @@ export const ConfirmModal: React.FC<{
     register,
     reset,
     formState: { errors },
-  } = useForm<z.infer<typeof schema>>({
-    defaultValues: { value: '' },
-    resolver: zodResolver(schema),
-  });
+  } = useForm();
 
   const trigger = useRef<HTMLButtonElement>(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const onSubmit: SubmitHandler<z.infer<typeof schema>> = useCallback(
-    async (data) => {
-      setLoading(true);
-      console.debug('data =', data);
-      await _onSubmit(data);
-      trigger.current?.click();
-      setLoading(false);
-      setOpen(false);
-    },
-    [_onSubmit],
-  );
+  const onSubmit = useCallback(async () => {
+    setLoading(true);
+    await _onSubmit();
+    trigger.current?.click();
+    setLoading(false);
+    setOpen(false);
+  }, [_onSubmit]);
 
   const onOpenChange = useCallback(
     (open: boolean) => {

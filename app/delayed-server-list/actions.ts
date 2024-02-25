@@ -8,6 +8,7 @@ import {
   getAdminQueueDeliverDelayed,
   getAdminQueueInboxDelayed,
   getblockedHostsOfMeta,
+  getFederationInstances,
   removeFederationAllFollowing,
   updateblockedHostsOfMeta,
   updateFederationInstance,
@@ -92,6 +93,21 @@ export async function get(): Promise<z.infer<typeof formSchema>> {
               })
             : null;
 
+        const blockedHosts =
+          provider.providerType === 'misskey'
+            ? await getFederationInstances({
+                provider,
+                suspended: true,
+                sort: '+pubSub',
+                limit: 100,
+              }).then((res) =>
+                res.map((instance) => ({
+                  name: instance.host,
+                  id: instance.id,
+                })),
+              )
+            : [];
+
         const domains =
           provider.providerType === 'mastodon'
             ? [] // API does not exist.
@@ -104,6 +120,10 @@ export async function get(): Promise<z.infer<typeof formSchema>> {
                       res.map((instance) => ({
                         name: instance[0],
                         queue: instance[1],
+                        isBlocked:
+                          blockedHosts?.some(
+                            (domain) => domain.name === instance[0],
+                          ) ?? false,
                       })),
                     )) ?? [],
                     (await getAdminQueueDeliverDelayed({
@@ -112,11 +132,17 @@ export async function get(): Promise<z.infer<typeof formSchema>> {
                       res.map((instance) => ({
                         name: instance[0],
                         queue: instance[1],
+                        isBlocked:
+                          blockedHosts?.some(
+                            (domain) => domain.name === instance[0],
+                          ) ?? false,
                       })),
                     )) ?? [],
                   ]
                     .flat()
-                    .reduce<{ name: string; queue: number }[]>((acc, cur) => {
+                    .reduce<
+                      { name: string; queue: number; isBlocked: boolean }[]
+                    >((acc, cur) => {
                       const domain = acc.find(
                         (domain) => domain.name === cur.name,
                       );
