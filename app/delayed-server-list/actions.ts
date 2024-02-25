@@ -153,7 +153,7 @@ export async function get(): Promise<z.infer<typeof formSchema>> {
                       }
                       return acc;
                     }, [])
-                    .sort((a, b) => a.queue - b.queue),
+                    .sort((a, b) => b.queue - a.queue),
                 )
               : [];
 
